@@ -5,6 +5,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -58,6 +59,7 @@ class MainClassTest {
 
 
          */
+
         val byteReaderImpl = ByteReaderImpl(file)
         byteReaderImpl.read()
             .take(400000)
@@ -81,9 +83,9 @@ class MainClassTest {
                 it.value >= 0
             }
             .waveToBinary()
-            .withIndex()
+            .batch(11)
             .collect {
-                println(" collect: ${if (it.value) 1 else 0}")
+                println(" collect: ${it.map { if (it) 1 else 0 }}")
             }
 
 
@@ -105,5 +107,22 @@ public fun Flow<Boolean>.waveToBinary(): Flow<Boolean> = flow {
         }
         oldValue = value
     }
+}
+
+/**
+ * Maps the Flow<T> to Flow<List<T>>. The list size is at least [batchSize]
+ */
+fun <T> Flow<T>.batch(batchSize: Int = 10): Flow<List<T>> {
+    val cache: MutableList<T> = mutableListOf()
+
+    return map {
+        cache.apply { add(it) }
+    }.filter { it.size >= batchSize }
+        .map {
+            mutableListOf<T>().apply { // copy the list and clears the cache
+                addAll(cache)
+                cache.clear()
+            }
+        }
 }
 
