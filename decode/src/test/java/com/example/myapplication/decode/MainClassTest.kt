@@ -93,11 +93,14 @@ class MainClassTest {
             .map {
                 Integer.parseInt(it, 2).toString(16)
             }
+            .findSecret()
             .collect {
-                println(it)
+
+                it.map {
+                    print(it.toInt(16).toChar())
+                }
 //                val message = Integer.parseInt(it, 2)
 //                print(message.toChar())
-                println("")
             }
 
 
@@ -106,6 +109,16 @@ class MainClassTest {
 
 }
 
+private fun hexToAscii(hexStr: String): String? {
+    val output = StringBuilder("")
+    var i = 0
+    while (i < hexStr.length) {
+        val str = hexStr.substring(i, i + 2)
+        output.append(str.toInt(16).toChar())
+        i += 2
+    }
+    return output.toString()
+}
 
 public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
     var counter = 0
