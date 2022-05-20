@@ -14,12 +14,46 @@ import java.nio.ByteOrder
 class MainClassTest {
     @Test
     fun addition_isCorrect() = runBlocking {
-        val file = getFileFromPath("file_1.wav") ?: error("file not found")
+        val file = getFileFromPath("file_2.wav") ?: error("file not found")
 
         //01010101
         //1111
         //0->-6546546546546
         //1->897892612161656
+        /**
+         *
+        IndexedValue(index=0, value=-16383)         0
+        IndexedValue(index=14, value=-16383)        0
+        IndexedValue(index=28, value=16383)         1
+        IndexedValue(index=42, value=16383)         1
+        IndexedValue(index=56, value=-16383)        0
+        IndexedValue(index=70, value=-16383)        0
+        IndexedValue(index=84, value=16383)         1
+        IndexedValue(index=98, value=16383)         1
+
+        IndexedValue(index=14, value=-121099)
+        IndexedValue(index=28, value=-207371)
+        IndexedValue(index=42, value=17307)
+        IndexedValue(index=56, value=186287)
+        IndexedValue(index=70, value=-21586)
+        IndexedValue(index=84, value=-187160)
+        IndexedValue(index=98, value=21412)
+
+        -121098
+        -207370
+        17306
+        186289
+        -21589
+        -187158
+        21409
+        187125
+        -21420
+        -187124
+        21419
+        187123
+        -21415
+
+         */
 
 
         val byteReaderImpl = ByteReaderImpl(file)
@@ -37,10 +71,9 @@ class MainClassTest {
                 val sumAccumulator = if (value.index % 14 == 0) 0 else accumulator
                 sumAccumulator + value.value
             }
-            .drop(1)
             .withIndex()
             .filter {
-                it.index % 14 == 0
+                it.index!=0 && it.index % 14 == 0
             }
             .collect {
                 println("${it}")

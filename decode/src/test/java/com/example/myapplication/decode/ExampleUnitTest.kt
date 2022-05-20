@@ -14,7 +14,7 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
 
-        val file = getFileFromPath("file_2.wav") ?: error("file not found")
+        val file = getFileFromPath("file_3.wav") ?: error("file not found")
 
         var passed = 0
 
@@ -62,7 +62,7 @@ class ExampleUnitTest {
                                 val decimal: Int = elements.toInt(2)
 
                                 val hexStr = decimal.toString(16)
-                                print("$elements ")
+//                                print("$elements ")
                             }
                             bitArray = ""
 
@@ -74,6 +74,7 @@ class ExampleUnitTest {
                     oldResult = result
 
 
+                    println(totalSum)
                     oldDiff = diff
                     totalSum = 0
                 }
