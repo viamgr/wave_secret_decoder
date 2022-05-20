@@ -35,25 +35,12 @@ class ExampleUnitTest {
 
                 val sz = input.read(buff)
 
-                val buffer = ByteBuffer.wrap(buff).order(ByteOrder.LITTLE_ENDIAN)
 
                 if (passed != 0 && passed % 28 == 0) {
                     val diff = oldDiff - totalSum
 
                     val result = diff - oldDiff > 100
                     passedIndex++
-//001100110011
-//001010101100
-//000110101100
-//0110011001100
-//0011011001100 -> 0010000
-//87528
-//306936
-//307076 00100001011 ->01000010 -> 01000010
-//328524: 01100000011
-//329000: 01001001011
-//1243536: 01100000011
-
 
                     if (passedIndex == 2) {
                         if (result == oldResult) {
@@ -92,6 +79,8 @@ class ExampleUnitTest {
                 }
 
                 if (passed % 2 == 0) {
+                    val buffer = ByteBuffer.wrap(buff).order(ByteOrder.LITTLE_ENDIAN)
+
                     val short = buffer.short
 
                     totalSum += short

@@ -11,6 +11,10 @@ import java.io.File
 class ByteReaderImpl(private val file: File) : ByteReader {
     private var buffered: BufferedInputStream = file.inputStream().buffered()
 
+    init {
+        buffered.skip(48)
+    }
+
     override fun read(): Flow<ByteArray> = flow {
         buffered.use { inputStream ->
             while (currentCoroutineContext().isActive) {
