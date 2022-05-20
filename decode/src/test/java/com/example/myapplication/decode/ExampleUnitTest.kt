@@ -43,13 +43,15 @@ class ExampleUnitTest {
                     passedIndex++
 
                     if (passedIndex == 2) {
-                        if (result == oldResult) {
+                        val sameOld = result == oldResult
+
+                        if (sameOld) {
                             passedIndex = 0
                         } else {
                             passedIndex = 1
                         }
 
-                        bitArray = bitArray.plus(if (result == oldResult) "0" else "1")
+                        bitArray = bitArray.plus(if (sameOld) "0" else "1")
                         if (bitArray.length == 11) {
 
                             if (passed in 308056..1222592) {

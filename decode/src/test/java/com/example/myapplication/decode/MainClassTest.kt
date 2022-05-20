@@ -53,12 +53,14 @@ class MainClassTest {
         187123
         -21415
 
+        001100110011 ->000000
+        010100110011 ->110000
+
+
          */
-
-
         val byteReaderImpl = ByteReaderImpl(file)
         byteReaderImpl.read()
-            .take(200)
+            .take(400000)
             .withIndex()
             .filter {
                 it.index % 2 == 1
@@ -73,13 +75,35 @@ class MainClassTest {
             }
             .withIndex()
             .filter {
-                it.index!=0 && it.index % 14 == 0
+                it.index != 0 && it.index % 14 == 0
             }
+            .map {
+                it.value >= 0
+            }
+            .waveToBinary()
+            .withIndex()
             .collect {
-                println("${it}")
+                println(" collect: ${if (it.value) 1 else 0}")
             }
 
 
     }
 
+
 }
+
+public fun Flow<Boolean>.waveToBinary(): Flow<Boolean> = flow {
+    var oldValue = false
+    var allow = false
+    collect { value ->
+        allow = if (allow) {
+            val isSame = oldValue == value
+            emit(!isSame)
+            !isSame
+        } else {
+            !allow
+        }
+        oldValue = value
+    }
+}
+
