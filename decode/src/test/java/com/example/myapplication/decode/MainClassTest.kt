@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.util.*
+
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -62,7 +62,7 @@ class MainClassTest {
 
         val byteReaderImpl = ByteReaderImpl(file)
         byteReaderImpl.read()
-            .take(400000)
+            .take(4000000)
             .withIndex()
             .filter {
                 it.index % 2 == 1
@@ -84,14 +84,86 @@ class MainClassTest {
             }
             .waveToBinary()
             .batch(11)
+            .map {
+                it.subList(1, 9).reversed()
+            }
+            .map {
+                it.map { if (it) "1" else "0" }.joinToString("")
+            }
+            .map {
+                Integer.parseInt(it, 2).toString(16)
+            }
             .collect {
-                println(" collect: ${it.map { if (it) 1 else 0 }}")
+                println(it)
+//                val message = Integer.parseInt(it, 2)
+//                print(message.toChar())
+                println("")
             }
 
 
     }
 
 
+}
+
+
+public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
+    var counter = 0
+    var leaderCount = 0
+    var endBlockCount = 0
+    var leaderStep = true
+    var checkIdStep = false
+    var oldCheckIdStep = 0
+    var dataStep = false
+    val buffer = mutableListOf<String>()
+    var zeroStep = false
+    var endBlockStep = false
+    collect {
+
+        if (leaderStep && it == "ff") {
+            leaderCount++
+            if (leaderCount == 652) {
+                leaderStep = false
+                checkIdStep = true
+            }
+        } else if (checkIdStep) {
+            if (it == "42" && oldCheckIdStep == 0) {
+                oldCheckIdStep = counter
+            } else if (it == "3" && oldCheckIdStep == counter - 1) {
+                checkIdStep = false
+                dataStep = true
+            } else {
+                checkIdStep = false
+            }
+        } else if (dataStep) {
+            if (buffer.size <= 1984) {
+                buffer.add(it)
+                if (buffer.size == 1984) {
+                    dataStep = false
+                    zeroStep = true
+                }
+            } else {
+                // TODO: validation
+                buffer.clear()
+                dataStep = false
+                zeroStep = true
+
+            }
+        } else if (zeroStep && it == "0") {
+            zeroStep = false
+            endBlockStep = true
+        } else if (endBlockStep && it == "ff") {
+
+            if (endBlockCount == 130 - 2) {
+
+                println("ffStep $endBlockCount")
+
+                emit(buffer)
+            }
+            endBlockCount++
+        }
+        counter++
+    }
 }
 
 public fun Flow<Boolean>.waveToBinary(): Flow<Boolean> = flow {
