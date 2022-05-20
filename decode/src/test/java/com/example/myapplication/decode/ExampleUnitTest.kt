@@ -10,13 +10,6 @@ import java.nio.ByteOrder
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-data class SomeStructure(
-    val fieldA: UByte,
-    val someValue: UShort,
-    val anotherValue: UInt,
-    val aByte: UByte,
-)
-
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
@@ -129,14 +122,15 @@ class ExampleUnitTest {
 
     }
 
-    private fun getFileFromPath(fileName: String): File? {
-        val classLoader = javaClass.classLoader
-        val resource = classLoader.getResource(fileName)
-        return if (resource != null) {
-            File(resource.path)
-        } else null
-    }
 
 
 
+
+}
+fun Any.getFileFromPath(fileName: String): File? {
+    val classLoader = javaClass.classLoader
+    val resource = classLoader.getResource(fileName)
+    return if (resource != null) {
+        File(resource.path)
+    } else null
 }
