@@ -154,11 +154,16 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
 //                println(buffer.size % 31)
                 if (dataCounter % 31 == 30) {
 
-                    val dataCheckSum = buffer.subList(buffer.size - 30, buffer.size).map {
+                    val subList = buffer.subList(buffer.size - 30, buffer.size)
+                    val dataCheckSum = subList.sumOf {
                         it.toInt(16)
-                    }.sum() % 256
+                    } % 256
 
-                    println(it.toInt(16) == dataCheckSum)
+                    val isValid = it.toInt(16) == dataCheckSum
+                    if (!isValid) {
+                        buffer.removeAll(subList)
+                    }
+                    println(isValid)
 
                 } else {
                     buffer.add(it)
