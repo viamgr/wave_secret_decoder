@@ -131,6 +131,7 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
     val buffer = mutableListOf<String>()
     var zeroStep = false
     var endBlockStep = false
+    var dataCounter = 0
     collect {
 
         if (leaderStep && it == "ff") {
@@ -150,8 +151,20 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
             }
         } else if (dataStep) {
             if (buffer.size <= 1984) {
-                buffer.add(it)
-                if (buffer.size == 1984) {
+//                println(buffer.size % 31)
+                if (dataCounter % 31 == 30) {
+
+                    val dataCheckSum = buffer.subList(buffer.size - 30, buffer.size).map {
+                        it.toInt(16)
+                    }.sum() % 256
+
+                    println(it.toInt(16) == dataCheckSum)
+
+                } else {
+                    buffer.add(it)
+                }
+                dataCounter++
+                if (dataCounter == 1984) {
                     dataStep = false
                     zeroStep = true
                 }
@@ -168,9 +181,6 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
         } else if (endBlockStep && it == "ff") {
 
             if (endBlockCount == 130 - 2) {
-
-                println("ffStep $endBlockCount")
-
                 emit(buffer)
             }
             endBlockCount++
