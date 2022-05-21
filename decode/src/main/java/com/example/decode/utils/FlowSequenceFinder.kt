@@ -11,6 +11,7 @@ fun Flow<Int>.skipOccurrenceSequenceWithData(count: Int, callback: (data: List<I
             loopCounter++
             when {
                 loopCounter == count -> {
+                    buffer.add(it)
                     mutableListOf<Int>().apply { // copy the list and clears the cache
                         addAll(buffer)
                         buffer.clear()

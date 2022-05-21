@@ -16,11 +16,12 @@ const val ID_BYTE_SIZE = 1
 const val DIVIDER_SIZE = 1
 const val LEADER_BYTE_SIZE = 652
 const val MESSAGE_BYTE_SIZE = 1984
-const val END_BLOCK_BYTE_SIZE = 129
+const val END_BLOCK_BYTE_SIZE = 130 - 1
 const val RECTANGLE_THRESHOLD = 100
 const val BINARY_SLICE_DATA_SIZE = 14
 
 /**
+ * https://medium.com/poka-techblog/back-to-basics-decoding-audio-modems-with-audacity-c94faa8362a0
  * readBytes
  * detectSoundHeight
  * detectFrequencies
