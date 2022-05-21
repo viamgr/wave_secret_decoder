@@ -2,8 +2,8 @@
 
 package com.example.decode
 
+import com.example.decode.utils.getFileFromPath
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
@@ -15,8 +15,6 @@ class MainClassTest {
         file.findSecretMessage().collect {
             print(it)
         }
-
-
 
         println("Done")
 
