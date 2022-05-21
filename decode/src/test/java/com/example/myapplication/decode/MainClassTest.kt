@@ -1,5 +1,8 @@
+@file:OptIn(FlowPreview::class)
+
 package com.example.myapplication.decode
 
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -16,6 +19,18 @@ class MainClassTest {
     @Test
     fun addition_isCorrect() = runBlocking {
         val file = getFileFromPath("file_2.wav") ?: error("file not found")
+/*
+
+        flowOf(1, 2, 3, 4, 5, 5, 2)
+            .skipOccurrence(1, 1)
+            .skipOccurrence(2, 1)
+            .skipOccurrence(3, 1)
+            .skipOccurrence(4, 1)
+            .skipOccurrence(5, 2)
+            .toList()
+            .also { println(it) }
+*/
+
 
         val byteReaderImpl = ByteReaderImpl(file)
         byteReaderImpl.read()
@@ -24,12 +39,10 @@ class MainClassTest {
             .convertFrequenciesToBinary()
             .convertToOrderedBytes()
             .convertToString()
-            .findSecret()
-            .first()
-            .also {
-                it.map {
-                    print(it.toChar())
-                }
+            .getData()
+            .removeCheckSum()
+            .collect {
+                print("findSecret1 $it")
             }
         println()
         println("Done")
@@ -37,6 +50,17 @@ class MainClassTest {
     }
 
 
+}
+
+private fun Flow<Int>.removeCheckSum(): Flow<List<Int>> {
+    return batch(31)
+        .transform { list: List<Int> ->
+            val data = list.subList(0, 30)
+            val checksum = list.last()
+            if (data.sum() % 256 == checksum) {
+                emit(data)
+            }
+        }
 }
 
 private fun Flow<List<Boolean>>.convertToString(): Flow<Int> {
@@ -70,6 +94,80 @@ private fun Flow<ByteArray>.detectSoundHeight(): Flow<Short> {
         }
         .map {
             ByteBuffer.wrap(it.value).order(ByteOrder.LITTLE_ENDIAN).short
+        }
+}
+
+fun Flow<Int>.getData(): Flow<Int> {
+    var buffer = listOf<Int>()
+    return dropWhile { it != "ff".toInt(16) }
+        .skipOccurrence("ff".toInt(16), 652)
+        .skipOccurrence("42".toInt(16), 1)
+        .skipOccurrence("3".toInt(16), 1)
+        .skipWithData(1984) {
+            buffer = it
+        }
+        .skipOccurrence("0".toInt(16), 1)
+        .skipOccurrence1("ff".toInt(16), 129)
+        .transform {
+            emitAll(buffer.asFlow())
+        }
+}
+
+fun Flow<Int>.skipWithData(count: Int, callback: (data: List<Int>) -> Unit): Flow<Int> = flow {
+    val buffer = mutableListOf<Int>()
+    var loopCounter = 0
+    collect {
+        loopCounter++
+        when {
+            loopCounter == count -> {
+                mutableListOf<Int>().apply { // copy the list and clears the cache
+                    addAll(buffer)
+                    buffer.clear()
+                }.also(callback)
+            }
+            loopCounter > count -> {
+                emit(it)
+            }
+            else -> {
+                buffer.add(it)
+            }
+        }
+    }
+}
+
+fun Flow<Int>.skipOccurrence1(
+    occurrence: Int,
+    count: Int,
+): Flow<Boolean> = flow {
+    skipOccurrence(occurrence, count, true).onCompletion {
+        emit(true)
+    }.collect()
+}
+
+fun Flow<Int>.skipOccurrence(
+    occurrence: Int,
+    count: Int,
+    stopOnFind: Boolean = false,
+): Flow<Int> {
+    var loopCounter = 0
+    var foundCounter = 0
+    var stop = false
+    return takeWhile {
+        !stop
+    }
+        .transform {
+            if (it == occurrence && foundCounter < count) {
+                foundCounter++
+            }
+            loopCounter++
+            val reachedEnd = foundCounter == count - 1 && stopOnFind
+            val hasWrongSequence = loopCounter != foundCounter && foundCounter < count
+
+            if (hasWrongSequence || reachedEnd) {
+                stop = true
+            } else if (loopCounter > foundCounter) {
+                emit(it)
+            }
         }
 }
 
