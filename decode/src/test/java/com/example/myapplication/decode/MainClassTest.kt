@@ -42,7 +42,7 @@ class MainClassTest {
             .getData()
             .removeCheckSum()
             .collect {
-                print("findSecret1 $it")
+                print("${it.toChar()}")
             }
         println()
         println("Done")
@@ -52,13 +52,13 @@ class MainClassTest {
 
 }
 
-private fun Flow<Int>.removeCheckSum(): Flow<List<Int>> {
+private fun Flow<Int>.removeCheckSum(): Flow<Int> {
     return batch(31)
         .transform { list: List<Int> ->
             val data = list.subList(0, 30)
             val checksum = list.last()
             if (data.sum() % 256 == checksum) {
-                emit(data)
+                emitAll(data.asFlow())
             }
         }
 }
