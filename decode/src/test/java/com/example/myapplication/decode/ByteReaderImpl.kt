@@ -22,8 +22,6 @@ class ByteReaderImpl(private val file: File) : ByteReader {
                 val sz = inputStream.read(buffer)
                 if (sz > 0)
                     emit(buffer)
-                else
-                    throw Exception("Failed to read buffer")
             }
         }
     }

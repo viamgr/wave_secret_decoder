@@ -17,110 +17,63 @@ class MainClassTest {
     fun addition_isCorrect() = runBlocking {
         val file = getFileFromPath("file_2.wav") ?: error("file not found")
 
-        //01010101
-        //1111
-        //0->-6546546546546
-        //1->897892612161656
-        /**
-         *
-        IndexedValue(index=0, value=-16383)         0
-        IndexedValue(index=14, value=-16383)        0
-        IndexedValue(index=28, value=16383)         1
-        IndexedValue(index=42, value=16383)         1
-        IndexedValue(index=56, value=-16383)        0
-        IndexedValue(index=70, value=-16383)        0
-        IndexedValue(index=84, value=16383)         1
-        IndexedValue(index=98, value=16383)         1
-
-        IndexedValue(index=14, value=-121099)
-        IndexedValue(index=28, value=-207371)
-        IndexedValue(index=42, value=17307)
-        IndexedValue(index=56, value=186287)
-        IndexedValue(index=70, value=-21586)
-        IndexedValue(index=84, value=-187160)
-        IndexedValue(index=98, value=21412)
-
-        -121098
-        -207370
-        17306
-        186289
-        -21589
-        -187158
-        21409
-        187125
-        -21420
-        -187124
-        21419
-        187123
-        -21415
-
-        001100110011 ->000000
-        010100110011 ->110000
-
-
-         */
-
         val byteReaderImpl = ByteReaderImpl(file)
         byteReaderImpl.read()
-            .take(4000000)
-            .withIndex()
-            .filter {
-                it.index % 2 == 1
-            }
-            .map {
-                ByteBuffer.wrap(it.value).order(ByteOrder.LITTLE_ENDIAN).short
-            }
-            .withIndex()
-            .runningFold(0) { accumulator, value ->
-                val sumAccumulator = if (value.index % 14 == 0) 0 else accumulator
-                sumAccumulator + value.value
-            }
-            .withIndex()
-            .filter {
-                it.index != 0 && it.index % 14 == 0
-            }
-            .map {
-                it.value >= 0
-            }
-            .waveToBinary()
-            .batch(11)
-            .map {
-                it.subList(1, 9).reversed()
-            }
-            .map {
-                it.map { if (it) "1" else "0" }.joinToString("")
-            }
-            .map {
-                Integer.parseInt(it, 2).toString(16)
-            }
+            .detectSoundHeight()
+            .detectFrequencies()
+            .convertFrequenciesToBinary()
+            .convertToOrderedBytes()
+            .convertToString()
             .findSecret()
-            .collect {
-
+            .first()
+            .also {
                 it.map {
-                    print(it.toInt(16).toChar())
+                    print(it.toChar())
                 }
-//                val message = Integer.parseInt(it, 2)
-//                print(message.toChar())
             }
-
+        println()
+        println("Done")
 
     }
 
 
 }
 
-private fun hexToAscii(hexStr: String): String? {
-    val output = StringBuilder("")
-    var i = 0
-    while (i < hexStr.length) {
-        val str = hexStr.substring(i, i + 2)
-        output.append(str.toInt(16).toChar())
-        i += 2
+private fun Flow<List<Boolean>>.convertToString(): Flow<Int> {
+    return map { list ->
+        list.joinToString("") { if (it) "1" else "0" }
     }
-    return output.toString()
+        .map {
+            Integer.parseInt(it, 2)
+        }
 }
 
-public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
+private fun Flow<Boolean>.convertToOrderedBytes(): Flow<List<Boolean>> {
+    return batch(11)
+        .map {
+            it.subList(1, 9).reversed()
+        }
+}
+
+
+private fun Flow<Short>.detectFrequencies(): Flow<Boolean> {
+    return batch(14)
+        .map {
+            it.sum() > 0
+        }
+}
+
+private fun Flow<ByteArray>.detectSoundHeight(): Flow<Short> {
+    return withIndex()
+        .filter {
+            it.index % 2 == 1
+        }
+        .map {
+            ByteBuffer.wrap(it.value).order(ByteOrder.LITTLE_ENDIAN).short
+        }
+}
+
+fun Flow<Int>.findSecret(): Flow<List<Int>> = flow {
     var counter = 0
     var leaderCount = 0
     var endBlockCount = 0
@@ -128,22 +81,22 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
     var checkIdStep = false
     var oldCheckIdStep = 0
     var dataStep = false
-    val buffer = mutableListOf<String>()
+    val buffer = mutableListOf<Int>()
     var zeroStep = false
     var endBlockStep = false
     var dataCounter = 0
     collect {
 
-        if (leaderStep && it == "ff") {
+        if (leaderStep && it.toString(16) == "ff") {
             leaderCount++
             if (leaderCount == 652) {
                 leaderStep = false
                 checkIdStep = true
             }
         } else if (checkIdStep) {
-            if (it == "42" && oldCheckIdStep == 0) {
+            if (it.toString(16) == "42" && oldCheckIdStep == 0) {
                 oldCheckIdStep = counter
-            } else if (it == "3" && oldCheckIdStep == counter - 1) {
+            } else if (it.toString(16) == "3" && oldCheckIdStep == counter - 1) {
                 checkIdStep = false
                 dataStep = true
             } else {
@@ -151,19 +104,15 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
             }
         } else if (dataStep) {
             if (buffer.size <= 1984) {
-//                println(buffer.size % 31)
                 if (dataCounter % 31 == 30) {
 
                     val subList = buffer.subList(buffer.size - 30, buffer.size)
-                    val dataCheckSum = subList.sumOf {
-                        it.toInt(16)
-                    } % 256
+                    val dataCheckSum = subList.sum() % 256
 
-                    val isValid = it.toInt(16) == dataCheckSum
+                    val isValid = it == dataCheckSum
                     if (!isValid) {
                         buffer.removeAll(subList)
                     }
-                    println(isValid)
 
                 } else {
                     buffer.add(it)
@@ -180,10 +129,10 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
                 zeroStep = true
 
             }
-        } else if (zeroStep && it == "0") {
+        } else if (zeroStep && it.toString(16) == "0") {
             zeroStep = false
             endBlockStep = true
-        } else if (endBlockStep && it == "ff") {
+        } else if (endBlockStep && it.toString(16) == "ff") {
 
             if (endBlockCount == 130 - 2) {
                 emit(buffer)
@@ -194,16 +143,16 @@ public fun Flow<String>.findSecret(): Flow<List<String>> = flow {
     }
 }
 
-public fun Flow<Boolean>.waveToBinary(): Flow<Boolean> = flow {
+fun Flow<Boolean>.convertFrequenciesToBinary(): Flow<Boolean> = flow {
     var oldValue = false
-    var allow = false
+    var isCycleFinished = false
     collect { value ->
-        allow = if (allow) {
+        isCycleFinished = if (isCycleFinished) {
             val isSame = oldValue == value
             emit(!isSame)
             !isSame
         } else {
-            !allow
+            !isCycleFinished
         }
         oldValue = value
     }
