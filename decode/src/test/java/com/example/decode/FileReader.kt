@@ -1,4 +1,4 @@
-package com.example.myapplication.decode
+package com.example.decode
 
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -8,14 +8,12 @@ import java.io.BufferedInputStream
 import java.io.File
 
 @Suppress("BlockingMethodInNonBlockingContext")
-class ByteReaderImpl(private val file: File) : ByteReader {
-    private var buffered: BufferedInputStream = file.inputStream().buffered()
-
-    init {
-        buffered.skip(48)
-    }
+class FileReader(private val file: File) : ByteReader {
 
     override fun read(): Flow<ByteArray> = flow {
+        val buffered: BufferedInputStream = file.inputStream().buffered()
+        buffered.skip(48)
+
         buffered.use { inputStream ->
             while (currentCoroutineContext().isActive) {
                 val buffer = ByteArray(2)

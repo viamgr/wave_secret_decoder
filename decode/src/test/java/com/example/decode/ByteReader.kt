@@ -1,4 +1,4 @@
-package com.example.myapplication.decode
+package com.example.decode
 
 import kotlinx.coroutines.flow.Flow
 
