@@ -3,27 +3,21 @@
 package com.example.decode
 
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class MainClassTest {
     @Test
     fun addition_isCorrect() = runBlocking {
-        val file = getFileFromPath("file_3.wav") ?: error("file not found")
+        val file = getFileFromPath("file_3.wav") ?: error("Failed to read file")
 
-        file.readBytes()
-            .detectSoundHeight()
-            .detectFrequencies()
-            .convertToBinary()
-            .convertToOrderedBytes()
-            .convertToInt()
-            .getData()
-            .removeCheckSum()
-            .collect {
-                print(it.toChar())
-            }
+        file.findSecretMessage().collect {
+            print(it)
+        }
 
-        println()
+
+
         println("Done")
 
     }

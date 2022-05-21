@@ -8,6 +8,50 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
+val LEADER_VALUE = "ff".toInt(16)
+val ID_FIRST_VALUE = "42".toInt(16)
+val ID_SECOND_VALUE = "3".toInt(16)
+val DIVIDER_VALUE = "0".toInt(16)
+const val ID_BYTE_SIZE = 1
+
+const val BUFFER_SIZE = 2
+const val RECTANGLE_THRESHOLD = 100
+const val BINARY_SLICE_DATA_SIZE = 14
+const val DIVIDER_SIZE = 1
+const val MESSAGE_BYTE_SIZE = 1984
+const val LEADER_BYTE_SIZE = 652
+const val END_BLOCK_BYTE_SIZE = 129
+
+fun File.findSecretMessage(): Flow<String> {
+    return readBytes()
+        .detectSoundHeight()
+        .detectFrequencies()
+        .convertToBinary()
+        .convertToOrderedBytes()
+        .convertToInt()
+        .getData()
+        .removeCheckSum()
+        .convertToString()
+}
+
+private fun Flow<Int>.convertToString(): Flow<String> = flow {
+    var result = ""
+    map {
+        result += it.toChar()
+    }.onCompletion {
+        println(result)
+        emit(result)
+    }.collect()
+}
+
+fun Any.getFileFromPath(fileName: String): File? {
+    val classLoader = javaClass.classLoader
+    val resource = classLoader.getResource(fileName)
+    return if (resource != null) {
+        File(resource.path)
+    } else null
+}
+
 @Suppress("BlockingMethodInNonBlockingContext")
 fun File.readBytes(bufferSize: Int = BUFFER_SIZE): Flow<ByteArray> = flow {
     val buffered: BufferedInputStream = inputStream().buffered()
@@ -70,20 +114,6 @@ fun Flow<ByteArray>.detectSoundHeight(): Flow<Short> {
             ByteBuffer.wrap(it.value).order(ByteOrder.LITTLE_ENDIAN).short
         }
 }
-
-val LEADER_VALUE = "ff".toInt(16)
-val ID_FIRST_VALUE = "42".toInt(16)
-val ID_SECOND_VALUE = "3".toInt(16)
-val DIVIDER_VALUE = "0".toInt(16)
-const val ID_BYTE_SIZE = 1
-
-const val BUFFER_SIZE = 2
-const val RECTANGLE_THRESHOLD = 14
-const val BINARY_SLICE_DATA_SIZE = 14
-const val DIVIDER_SIZE = 1
-const val MESSAGE_BYTE_SIZE = 1984
-const val LEADER_BYTE_SIZE = 652
-const val END_BLOCK_BYTE_SIZE = 129
 
 fun Flow<Int>.getData(): Flow<Int> {
     var buffer = listOf<Int>()
