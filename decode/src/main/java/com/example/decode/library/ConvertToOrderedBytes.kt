@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.map
 
 /**
  * Remove extra values from the digital sequences of boolean array and reverse it for example
- * 01111000000 -> 00001111
+ * false, false, true, false, true, false, true, false, true, false, false -> true, false, true, false, true, false, true, false
  */
 fun Flow<Boolean>.convertToOrderedBytes(): Flow<List<Boolean>> {
     return batch(11)
