@@ -4,7 +4,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Join boolean sequences to a integer value
+ * Join boolean sequences and return integer value
+ * false         -> 0
+ * true          -> 1
+ * true,true     -> 3
  */
 fun Flow<List<Boolean>>.convertToInt(): Flow<Int> {
     return map { list ->

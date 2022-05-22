@@ -17,8 +17,6 @@ class UtilsTest {
         val file = getFileFromPath("invalidFile.wav")
         Assert.assertNull(file)
     }
-
-
 }
 
 
