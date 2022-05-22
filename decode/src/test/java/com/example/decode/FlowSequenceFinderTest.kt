@@ -1,5 +1,6 @@
 package com.example.decode
 
+import com.example.decode.utils.batch
 import com.example.decode.utils.skipOccurrenceSequence
 import com.example.decode.utils.skipOccurrenceSequenceWithData
 import kotlinx.coroutines.FlowPreview
@@ -27,7 +28,7 @@ class FlowSequenceFinderTest {
     }
 
     @Test
-    fun skipOccurrenceSequence_middleRange_shouldReturnZero() = runBlocking {
+    fun skipOccurrenceSequence_middleRange_returnZero() = runBlocking {
         val result = flowOf(4, 5, 1, 1, 2)
             .skipOccurrenceSequence(1, 2)
             .toList()
@@ -35,7 +36,7 @@ class FlowSequenceFinderTest {
     }
 
     @Test
-    fun skipOccurrenceSequence_withOneItem_shouldSkip() = runBlocking {
+    fun skipOccurrenceSequence_withOneItem_skip() = runBlocking {
         val result = flowOf(1)
             .skipOccurrenceSequence(1, 1)
             .toList()
@@ -43,7 +44,7 @@ class FlowSequenceFinderTest {
     }
 
     @Test
-    fun skipOccurrenceSequence_withTwoItemFirstOccurrence_shouldReturnsSecond() = runBlocking {
+    fun skipOccurrenceSequence_withTwoItemFirstOccurrence_returnsSecond() = runBlocking {
         val result = flowOf(1, 2)
             .skipOccurrenceSequence(1, 1)
             .toList()
@@ -52,7 +53,7 @@ class FlowSequenceFinderTest {
     }
 
     @Test
-    fun skipOccurrenceSequence_nestedSkip_shouldWorks() = runBlocking {
+    fun skipOccurrenceSequence_nestedSkip_works() = runBlocking {
         val result = flowOf(1, 1, 1, 2)
             .skipOccurrenceSequence(1, 1)
             .skipOccurrenceSequence(1, 1)
@@ -63,7 +64,7 @@ class FlowSequenceFinderTest {
     }
 
     @Test
-    fun skipOccurrenceSequenceWithData_nestedSkipWithSameItems_shouldWorks() = runBlocking {
+    fun skipOccurrenceSequenceWithData_nestedSkipWithSameItems_work() = runBlocking {
         var callbackData: List<Int>? = null
         val callback = { data: List<Int> ->
             callbackData = data
@@ -77,7 +78,7 @@ class FlowSequenceFinderTest {
     }
 
     @Test
-    fun skipOccurrenceSequenceWithData_nestedSkipWithDifferentItems_shouldWorks() = runBlocking {
+    fun skipOccurrenceSequenceWithData_nestedSkipWithDifferentItems_work() = runBlocking {
         var callbackData: List<Int>? = null
         val callback = { data: List<Int> ->
             callbackData = data
@@ -90,6 +91,30 @@ class FlowSequenceFinderTest {
         Assert.assertEquals(listOf(1), callbackData)
     }
 
+    @Test
+    fun batch_batchWithOne_groupingToOneSliceSize() = runBlocking {
+        val result = flowOf(1, 2, 3)
+            .batch(1)
+            .toList()
+        Assert.assertEquals(listOf(listOf(1), listOf(2), listOf(3)), result)
+    }
+
+
+    @Test
+    fun batch_batchWithSizeTwoAndEvenItems_groupOneSlice() = runBlocking {
+        val result = flowOf(1, 2, 3)
+            .batch(2)
+            .toList()
+        Assert.assertEquals(listOf(listOf(1, 2)), result)
+    }
+
+    @Test
+    fun batch_batchWithSizeTwoAndOddItems_groupTwoSlice() = runBlocking {
+        val result = flowOf(1, 2, 3, 4)
+            .batch(2)
+            .toList()
+        Assert.assertEquals(listOf(listOf(1, 2), listOf(3, 4)), result)
+    }
 
 }
 
