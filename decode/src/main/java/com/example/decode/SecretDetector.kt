@@ -36,7 +36,7 @@ fun File.findSecretMessage(): Flow<String> {
     return readBytes()
         .detectSoundHeight()
         .detectFrequencies()
-        .convertToBinary()
+        .demodulate()
         .convertToOrderedBytes()
         .convertToInt()
         .retrieveData()

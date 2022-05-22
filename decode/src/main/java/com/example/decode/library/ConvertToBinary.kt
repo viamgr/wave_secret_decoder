@@ -5,12 +5,12 @@ import kotlinx.coroutines.flow.flow
 
 /**
  * Convert Boolean sequences to the digital values for example:
- * 00110011 -> 0000
+ * false, false, true, true, false, false, true, true -> 0000
  * 01010101 -> 10101010
  * 00100101 -> 010111
  * 00101100 -> 01100
  */
-fun Flow<Boolean>.convertToBinary(): Flow<Boolean> = flow {
+fun Flow<Boolean>.demodulate(): Flow<Boolean> = flow {
     var oldValue = false
     var isCycleFinished = false
     collect { value ->
