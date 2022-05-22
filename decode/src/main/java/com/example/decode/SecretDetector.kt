@@ -33,7 +33,7 @@ const val BINARY_SLICE_DATA_SIZE = 14
  * convertToString
  */
 fun File.findSecretMessage(): Flow<String> {
-    return readBytes()
+    return readWaveFileBytes()
         .detectSoundHeight()
         .detectFrequencies()
         .demodulate()

@@ -12,7 +12,7 @@ import java.io.File
  * Read and divide bytes with a specific size
  */
 @Suppress("BlockingMethodInNonBlockingContext")
-fun File.readBytes(bufferSize: Int = BUFFER_SIZE): Flow<ByteArray> = flow {
+fun File.readWaveFileBytes(bufferSize: Int = BUFFER_SIZE): Flow<ByteArray> = flow {
     val buffered: BufferedInputStream = inputStream().buffered()
     buffered.skip(48)
 
