@@ -27,7 +27,7 @@ const val MODULO_SIZE = 256
  * readBytes
  * detectSoundHeight
  * detectFrequencies
- * convertToBinary
+ * demodulate
  * convertToOrderedBytes
  * convertToInt
  * getData
