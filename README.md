@@ -31,8 +31,8 @@ I used these tools to figure out the final solution:
  
  
 ## Implementation
- 
-As mentioned in the description it is a challenging task to finish but I tried to be my best.
+
+As mentioned in the description it is a challenging task to finish but I tried to do my best.
 
 The code procedures are developed at a high level as you can see the eager methods called step by step after each other:
  
@@ -87,5 +87,4 @@ Very soon the Rabbit noticed Alice, as she went hunting about, and called out to
 There are two issues with this code challenge:
  
 * The end block length was 129 BYTES instead of 130 that mentioned in the documentation
-* Abraham Lincoln has been dead many years ago in 1865. How he could say something about the Internet before creating that?
- 
+* Abraham Lincoln died many years ago in 1865. How could he say something about the Internet before creating that? 
