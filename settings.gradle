@@ -12,6 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "My Application"
-include ':app'
-include ':decode'
+rootProject.name = "ParadoxCat Challenge"
+include ':paradoxcat'
+include ':wavedecoder'
+include ':flowutils'
