@@ -61,6 +61,9 @@ bytes
  *     After that,the data is structured in 64 messages of 30 bytes each, with the 31st byte
  *     being the checksum of the 30 bytes before that (in total 1984 bytes = 64 * 31 bytes).
  *     The last byte before the end block is a 0x00 byte.
+ *
+ *     Message format, overall structure and checksum positions in byte-stream
+ *     LEADER 652 BYTES -ID 2 BYTES - DATA (30+1) x 64 = 1984 BYTES - ZERO 1 BYTE - END BLOCK 130 BYTES
  */
 fun Flow<Int>.retrieveData(): Flow<Int> {
     var buffer = listOf<Int>()
