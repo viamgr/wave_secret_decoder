@@ -1,5 +1,6 @@
 # Paradox cat
 ”Logic will get you from A to B. Imagination will take you everywhere.” - Albert Einstein
+
 It is a library for getting a human-readable string from a Wav file.
  
  
@@ -7,22 +8,22 @@ It is a library for getting a human-readable string from a Wav file.
  
 The library is built in a multi-module structure and attempts to use the latest tools and libraries.
  
-* 100% uses Kotlin with any extra library.
+* 100% uses Kotlin.
 * Uses Kotlin Coroutines throughout threading.
 * Uses Flow for sequential programming.
 * Write 39 unit tests to ensure everything works fine.
  
 ## Modules
  
-This project has 3 different modules named:
+This project has 3 different modules with names:
  
-* **flowutils** : is used to place custom flow utils. 
-* **wavedecoder**: is used to define wave decoder helper methods for decoding Wav file.
-* **paradoxcat**: is used to handle challenge logics.
+* **flowutils** : Is used to place custom flow utils. 
+* **wavedecoder**: Is used to define wave decoder helper methods for decoding Wav file.
+* **paradoxcat**: Is used to handle the challenge logics.
 
 ## Solution
   
-I used these tools to find the final solution:
+I used these tools to figure out the final solution:
  
 * **Audacity** software to visualize the Wav file frequency and wavelength.
 * **HxD** software to observe the hex values of that Wav file
