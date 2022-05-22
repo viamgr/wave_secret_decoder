@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Grouping short sequences into a specific size array of slices to calculate waveForm
- * rectangle sum weight
+ * Grouping short sequences into a specific size array of slices to calculate waveForm rectangle sum weight
+ *
  */
 fun Flow<Short>.detectFrequencies(
     batchSize: Int = BINARY_SLICE_DATA_SIZE,
