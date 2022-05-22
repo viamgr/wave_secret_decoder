@@ -1,92 +1,91 @@
 # Paradox cat
+”Logic will get you from A to B. Imagination will take you everywhere.” - Albert Einstein
 
+It is a library for getting a human-readable string from a Wav file.
+ 
+ 
+## Technologies
+ 
+The library is built in a multi-module structure and attempts to use the latest tools and libraries.
+ 
+* 100% uses Kotlin.
+* Uses Kotlin Coroutines throughout threading.
+* Uses Flow for sequential programming.
+* Write 39 unit tests to ensure everything works fine.
+ 
+## Modules
+ 
+This project has 3 different modules with names:
+ 
+* **flowutils** : Is used to place custom flow utils. 
+* **wavedecoder**: Is used to define wave decoder helper methods for decoding Wav file.
+* **paradoxcat**: Is used to handle the challenge logics.
 
+## Solution
+  
+I used these tools to figure out the final solution:
+ 
+* **Audacity** software to visualize the Wav file frequency and wavelength.
+* **HxD** software to observe the hex values of that Wav file
+* Decoding Audio Modems with Audacity using [this article](https://medium.com/poka-techblog/back-to-basics-decoding-audio-modems-with-audacity-c94faa8362a0)
+ 
+ 
+## Implementation
+ 
+As mentioned in the description it is a challenging task to finish but I tried to be my best.
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+The code procedures are developed at a high level as you can see the eager methods called step by step after each other:
+ 
+```kotlin
+fun File.findSecretMessage(): Flow<String> {
+    return readWaveFileBytes()
+        .detectSoundHeight()
+        .detectFrequencies()
+        .demodulate()
+        .convertToOrderedBytes()
+        .convertToInt()
+        .retrieveData()
+        .removeCheckSum()
+        .convertToString()
+}
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/zvm4zvm/paradox-cat.git
-git branch -M main
-git push -uf origin main
+ 
+In the `retrieveData` method you can apply the challenge logic like this:
+ 
+```kotlin
+fun Flow<Int>.retrieveData(): Flow<Int> {
+    var buffer = listOf<Int>()
+    return dropWhile {
+        it != LEADER_VALUE
+    }
+        .skipOccurrenceSequence(LEADER_VALUE, LEADER_BYTE_SIZE)
+        .skipOccurrenceSequence(ID_FIRST_VALUE, ID_BYTE_SIZE)
+        .skipOccurrenceSequence(ID_SECOND_VALUE, ID_BYTE_SIZE)
+        .skipOccurrenceSequenceWithData(MESSAGE_BYTE_SIZE) {
+            buffer = it
+        }
+        .skipOccurrenceSequence(DIVIDER_VALUE, DIVIDER_SIZE)
+        .skipOccurrenceSequence(LEADER_VALUE, END_BLOCK_BYTE_SIZE, stopOnFind = true)
+        .onCompletion {
+            emitAll(buffer.asFlow())
+        }
+}
+ 
 ```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/zvm4zvm/paradox-cat/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+ 
+## Result
+ 
+```
+It was the White Rabbit, trotting slowly back again, and looking anxiously about as it went, as if it had lost something; and she heard it muttering to itself `The Duchess! The Duchess! Oh my dear paws! Oh my fur and whiskers! She'll get me executed, as sure as ferrets are ferrets! Where can I have dropped them, I wonder?' Alice guessed in a moment that it was looking for the fan and the pair of white kid gloves, and she very good-naturedly began hunting about for them, but they were nowhere to be seen--everything seemed to have changed since her swim in the pool, and the great hall, with the glass table and the little door, had vanished completely.
+Very soon the Rabbit noticed Alice, as she went hunting about, and called out to her in an angry tone, `Why, Mary Ann, what are you doing out here? Run home this moment, and fetch me a pair of gloves and a fan! Quick, now!' And Alice was so much frightened that she ran off at once in the direction it pointed to, without trying to explain the mistake it had made.
+`He took me for his housemaid,' she said to herself as she ran. `How surprised he'll be when he finds out who I am! But I'd better take him his fan and gloves--that is, if I can find them.' As she said this, she came upon a neat little house, on the door of which was a bright brass plate with the name `W. RABBIT' engraved upon it. She went in without knocking, and hurried upstairs, in great fear lest she should meet the real Mary Ann, and be turned out of the house before she had found the fan and gloves.
+`How queer it seems,' Alice said to herself, `to be going messages for a rabbit! I suppose Dinah'll be sending me on messages next!' And she began fancying the sort of thing that would happen: `"Miss Alice! Come here directly, and get ready for your walk!" "Coming in a minute, nurse! But I've got to see that the mouse doesn't get out." Only I don't think,' Alice went on, `that they
+```
+ 
+## Issues
+ 
+There are two issues with this code challenge:
+ 
+* The end block length was 129 BYTES instead of 130 that mentioned in the documentation
+* Abraham Lincoln has been dead many years ago in 1865. How he could say something about the Internet before creating that?
+ 
