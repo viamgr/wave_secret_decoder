@@ -11,11 +11,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/flowutils" />
-            <option value="$PROJECT_DIR$/paradoxcat" />
+            <option value="$PROJECT_DIR$/wave_secret_decoder" />
             <option value="$PROJECT_DIR$/wavedecoder" />
           </set>
         </option>
-        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

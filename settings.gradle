@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "ParadoxCat Challenge"
-include ':paradoxcat'
+rootProject.name = "WaveSecretDecoder Challenge"
+include ':wave_secret_decoder'
 include ':wavedecoder'
 include ':flowutils'

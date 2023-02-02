@@ -1,4 +1,4 @@
-# Paradox cat
+# Wave Secret Decoder
 ”Logic will get you from A to B. Imagination will take you everywhere.” - Albert Einstein
 
 It is a library for getting a human-readable string from a Wav file.
@@ -19,7 +19,7 @@ This project has 3 different modules with names:
  
 * **flowutils** : Is used to place custom flow utils. 
 * **wavedecoder**: Is used to define wave decoder helper methods for decoding Wav file.
-* **paradoxcat**: Is used to handle the challenge logics.
+* **WaveSecretDecoder**: Is used to handle the challenge logics.
 
 ## Solution
   
